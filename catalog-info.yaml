@@ -1,0 +1,265 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: TicketBooking
+  appid: TicketBooking
+  description: Microservice for TicketBooking
+  tags:
+    - java
+    - springboot
+  annotations:
+    flowsource/lob: flowsource-Testing
+    flowsource/is-critical: "false"
+    flowsource/cloud-provider: aws
+    flowsource/app-hosted-region: ap-southeast-1
+    flowsource/datadog-tags: env!engg
+    # Tools for DORA metrics
+    flowsource/dora-cicd-tool: jenkins                #### Allowed values: jenkins, github-actions, azure-pipelines
+    flowsource/dora-scm-tool: github                  #### Allowed values: github , azure-repos
+    flowsource/dora-alm-tool: jira                    #### Allowed values: jira, azure-boards
+    flowsource/dora-itsm-tool: service-now            #### Allowed values: service-now
+    flowsource/dora-observability-platform: datadog   #### Allowed values: datadog
+    flowsource/dora-jira-final-status: MOVED TO PROD  
+ 
+    # 
+    flowsource/jira-project-key: UPSHIFT
+    flowsource/sonarqube-project-key: ticket-booking-unified-app
+    flowsource/fis-aws-region: ap-southeast-1
+    flowsource/fis-application-id: TicketBooking
+    flowsource/checkmarx-project-id: TicketBooking
+    flowsource/prismacloud-scan-repo: TicketBooking
+    flowsource/prismacloud-scan-branch: workflow-integration
+    flowsource/github-project-slug: 'TheCognizantFoundry/TicketBooking'
+    flowsource/github-repo-owner: TheCognizantFoundry
+    flowsource/github-repo-name: TicketBooking
+    flowsource/veracode-app-name: Ticketbooking
+    #AWS Resilience Hub Annotations
+    flowsource/aws-resiliencehub-appname: Theatre-Booking
+    flowsource/aws-resiliencehub-region: ap-southeast-1
+ 
+    # flowsource/github-workflows: Basic workflow demo, TicketBooking-Pipeline
+    flowsource/jenkins-pipelines: ticket-booking-application
+    flowsource/durationInDays: '180'
+    # For Insights to calculate DORA Metrics (for prod deployments)
+    flowsource/jenkins-prod-deployment-job-full-project-name: Ticket-Booking-deployment/jenkins-backstage-test
+ 
+    # backstage.io/techdocs-ref: dir:.
+    # datadoghq.com/dashboard-url: https://p.us3.datadoghq.com/sb/266d06c0-b67d-11ed-8570-da7ad0900003-8b1f054ce1f7048051fbfb26a044ff14
+    datadoghq.com/dashboard-url: https://p.us3.datadoghq.com/sb/266d06c0-b67d-11ed-8570-da7ad0900003-8b1f054ce1f7048051fbfb26a044ff14
+    github.com/project-slug: 'TheCognizantFoundry/TicketBooking'
+    backstage.io/techdocs-ref: dir:.
+    cognizant/jira-project-key: UPSHIFT
+    cognizant/sonarqube-project-key: ticket-booking-unified-app
+    #dev.azure.com/project-repo: TicketBooking/TicketBooking
+    #dev.azure.com/project: TicketBooking
+    project: Unknown
+    cognizant/FIS-AWS-Region: ap-southeast-1
+    cognizant/FIS-ApplicationId: TicketBooking
+    cognizant/checkmarx-project-id: TicketBooking
+    prismacloud/scan-repo: TicketBooking
+    prismacloud/scan-branch: workflow-integration
+    flowsource/prismacloud-container-images: cicd-prisma-testing
+    flowsource/prismacloud-iac-scan-repo: os-security-patches
+    flowsource/prismacloud-iac-scan-branch: aws-os-security-patches
+    flowsource/prismacloud-iac-scan-check-status: PASSED
+    cognizant/github-repo-owner: TheCognizantFoundry
+    cognizant/github-repo-name: TicketBooking
+    cognizant/chatbot-project-id: TicketBooking
+ 
+    flowsource/cloudability-dimension-env: tag14
+    flowsource/cloudability-dimension-appid: tag6
+    flowsource/cloudability-prod-tag: prod
+    flowsource/cloudability-appid: ticket-booking
+    flowsource/cloudability-dimension-deploymentType: tag15
+    flowsource/cloudability-view: Skygrade - Flowsource - View
+    flowsource/servicenow-configuration-item: Ticketbooking
+    flowsource/prismacloud-defender-hosts: ip-172-31-83-196.ec2.internal
+ 
+    # Resilience4j datadog
+    flowsource/resilience4j-datadog-monitor-name: Circuit breaker alert for r4j
+    flowsource/resilience4j-durationInDays: '1'
+    flowsource/resilience4j-datadog-applicationName: ticketbooking-reslience4j-demo
+  links:
+    - url: https://github.com/TheCognizantFoundry/TicketBooking
+      title: Source Code
+      icon: github
+    - url: http://a8f2ef01bc01d4eb7bab4d3c2981cc52-2044124417.ap-southeast-1.elb.amazonaws.com:9000/showinfo
+      title: Deployed Application - Dashboard
+      icon: dashboard
+      type: Deployed Application
+    - url: http://a8f2ef01bc01d4eb7bab4d3c2981cc52-2044124417.ap-southeast-1.elb.amazonaws.com:9000/shows
+      title: Deployed Application - Shows JSON
+      icon: catalog
+      type: Deployed Application
+    - url: http://a8f2ef01bc01d4eb7bab4d3c2981cc52-2044124417.ap-southeast-1.elb.amazonaws.com:9000/booking
+      title: Deployed Application - Select Seats
+      icon: group
+      type: Deployed Application
+spec:
+  providesApis:
+    - TicketBooking
+  consumesApis:
+    - SeatAvailability
+    - ShowInformation
+  type: service
+  system: TheaterBooking
+  lifecycle: production
+  owner: role:catalog-admin
+  dependsOn:
+    - component:default/ShowInformation
+    - component:default/SeatAvailability
+    - resource:default/TicketBooking-DB
+  subcomponentOf: component:default/TheatreBookingWeb
+ 
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: TicketBooking-DB
+  description: Database for storing the details
+spec:
+  type: database
+  owner: role:catalog-admin
+  system: TheaterBooking
+ 
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: TicketBooking
+  description: Get ticket booking details
+  tags:
+    - java
+    - springboot
+spec:
+  type: openapi
+  lifecycle: production
+  owner: role:catalog-admin
+  system: TheaterBooking
+  definition: |
+    openapi: 3.0.1
+    info:
+      title: OpenAPI definition
+      version: v0
+    servers:
+      - url: http://localhost:9001
+        description: Generated server url
+    paths:
+      /bookings/{bookingId}:
+        get:
+          tags:
+            - booking-controller
+          operationId: getBooking
+          parameters:
+            - name: bookingId
+              in: path
+              required: true
+              schema:
+                type: integer
+                format: int64
+          responses:
+            '200':
+              description: OK
+              content:
+                '*/*':
+                  schema:
+                    $ref: '#/components/schemas/Booking'
+        put:
+          tags:
+            - booking-controller
+          operationId: updateBooking
+          parameters:
+            - name: bookingId
+              in: path
+              required: true
+              schema:
+                type: integer
+                format: int64
+          requestBody:
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Booking'
+            required: true
+          responses:
+            '200':
+              description: OK
+              content:
+                '*/*':
+                  schema:
+                    $ref: '#/components/schemas/Booking'
+        delete:
+          tags:
+            - booking-controller
+          operationId: deleteBooking
+          parameters:
+            - name: bookingId
+              in: path
+              required: true
+              schema:
+                type: integer
+                format: int64
+          responses:
+            '200':
+              description: OK
+              content:
+                '*/*':
+                  schema:
+                    type: object
+      /bookings:
+        get:
+          tags:
+            - booking-controller
+          operationId: getAllBookings
+          responses:
+            '200':
+              description: OK
+              content:
+                '*/*':
+                  schema:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Booking'
+        post:
+          tags:
+            - booking-controller
+          operationId: createBooking
+          requestBody:
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Booking'
+            required: true
+          responses:
+            '200':
+              description: OK
+              content:
+                '*/*':
+                  schema:
+                    $ref: '#/components/schemas/Booking'
+    components:
+      schemas:
+        Booking:
+          type: object
+          properties:
+            id:
+              type: integer
+              format: int64
+            showId:
+              type: integer
+              format: int64
+            showTime:
+              type: string
+              format: date-time
+            customerName:
+              type: string
+            seatNumbers:
+              uniqueItems: true
+              type: array
+              items:
+                type: integer
+                format: int32
+            paymentId:
+              type: integer
+              format: int64
+---
